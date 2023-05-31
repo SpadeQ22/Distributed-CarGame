@@ -1,6 +1,8 @@
+import random
 class Car:
+
     def __init__(self,id):
-        self.display_width = 800
+        self.display_width = 1200
         self.display_height = 600
         self.x_coordinate = None
         self.y_coordinate = None
@@ -10,8 +12,8 @@ class Car:
         self.initialize()
 
     def initialize(self):
-        self.x_coordinate = (self.display_width * 0.45)
-        self.y_coordinate = (self.display_height * 0.8)
+        self.x_coordinate = (random.randint(300,self.display_width-300))
+        self.y_coordinate = (self.display_height * 0.75)
         self.width = 49
         self.connected=False
 
