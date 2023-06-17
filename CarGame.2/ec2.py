@@ -4,12 +4,8 @@ from cargame import abc
 redis_client = redis.Redis(host="redis-12791.c44.us-east-1-2.ec2.cloud.redislabs.com", port=12791, db=0, password='bg17VYxIffU1IyzMvsiaZ1xLY5xxbpeU')
 flag=False
 
-if abc:
-    ip = "172.31.47.236"
-    port = 8000
-else:
-    ip = "localhost"
-    port = 55555
+ip = "0.0.0.0"
+port = 1225
 
 class Car:
     def __init__(self,id):
