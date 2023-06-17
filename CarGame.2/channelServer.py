@@ -15,7 +15,7 @@ class Channel:
         #     ("172.31.31.143", 6379): ("75.101.200.157", 6379)
         # }
         self.channel = RedisCluster(host='172.31.28.112', port=6379, read_from_replicas=True)
-        # print("Connected to Cluster -- Success")
+        print("Connected to Cluster -- Success")
         self.osmembers = {}
         if flush:
             self.channel.flushall()
@@ -45,10 +45,13 @@ class Channel:
         return
 
     def force_leave(self, subgroup, uuid):
+        caller = self.osmembers[os.getpid()]
         pid = uuid
         assert self.channel.sismember('members', str(pid)), ''
         self.channel.srem('members', str(pid).encode())
         self.channel.srem(subgroup, str(pid).encode())
+        self.channel.delete(json.dumps([str(pid), str(caller)]))
+        self.channel.delete(json.dumps([str(caller), str(pid)]))
         return
 
     def exists(self, pid):
