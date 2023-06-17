@@ -76,5 +76,5 @@ class Server(socket.socket):
 
 
 if __name__ == '__main__':
-    server = Server("localhost", 1234)
+    server = Server("0.0.0.0", 1234)
     server.run()
