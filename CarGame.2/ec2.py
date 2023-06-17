@@ -103,7 +103,7 @@ def getID(arr):
 players_inSession=get_game_state(0)
 players_inSession = {int(key): value for key, value in players_inSession.items()}
 
-x=input("Restart? Y/N :  ")
+x="Y"
 if x=="Y":
     save_game_state(0,{})
     for session in players_inSession:
