@@ -11,7 +11,7 @@ class CarRacing:
     def __init__(self):
         self.car = None
         pygame.init()
-        self.display_width = 800
+        self.display_width = 1200
         self.display_height = 600
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
@@ -23,7 +23,7 @@ class CarRacing:
         self.crashed = False
         self.connection = None
         self.first_try = True
-        self.carImg = ['car', 'enemy_car_2']
+        self.carImg = ['Audi', 'Black_viper']
         self.msg = ""
 
         self.BLACK = (0, 0, 0)
@@ -33,10 +33,14 @@ class CarRacing:
         self.CHAT_BOX_HEIGHT = 300
         self.chat_box_surface = pygame.Surface((self.CHAT_BOX_WIDTH, self.CHAT_BOX_HEIGHT))
         self.chat_box_surface.fill(self.WHITE)
-        self.user_input = ""
-        self.font = pygame.font.SysFont('Arial', 16)
-        self.chat_messages = []
+        self.chat_box_surface.set_colorkey(self.WHITE)
 
+        self.user_input = ""
+        self.font = pygame.font.Font("fonts/Valorax-lg25V.otf",14)
+        self.chat_messages = []
+        
+        self.sound = pygame.mixer.music.load("sounds/main.wav")
+        self.music = pygame.mixer.music.play(loops=100)
         self.initialize()
 
     def initialize(self):
@@ -47,7 +51,8 @@ class CarRacing:
         self.crashed = False
 
         # enemy_car
-        self.enemy_car = pygame.image.load('.\\img\\enemy_car_1.png')
+        self.enemy_car = pygame.image.load("images/Police.png")
+        self.enemy_car = pygame.transform.scale(self.enemy_car,(150,150))
         self.enemy_car_startx = random.randrange(310, 450)
         self.enemy_car_starty = -600
         self.enemy_car_speed = 5
@@ -55,16 +60,17 @@ class CarRacing:
         self.enemy_car_height = 100
 
         # Background
-        self.bgImg = pygame.image.load(".\\img\\back_ground.jpg")
-        self.bg_x1 = (self.display_width / 2) - (360 / 2)
-        self.bg_x2 = (self.display_width / 2) - (360 / 2)
+        self.bgImg = pygame.image.load("images/road.png")
+        self.bg_x1 = (self.display_width) - (1200)
+        self.bg_x2 = (self.display_width) - (1200)
         self.bg_y1 = 0
         self.bg_y2 = -600
         self.bg_speed = 3
         self.count = 0
 
     def disp_car(self, x_coordinate, y_coordinate, image):
-        carimage = pygame.image.load(f'.\\img\\{self.carImg[image]}.png')
+        carimage = pygame.image.load(f'images/{self.carImg[image]}.png')
+        carimage = pygame.transform.scale(carimage, (150, 150))
         self.gameDisplay.blit(carimage, (x_coordinate, y_coordinate))
 
     def racing_window(self):
@@ -140,20 +146,23 @@ class CarRacing:
 
             self.gameDisplay.fill(self.black)
 
+
+
+            self.back_ground_road()
+
+
             self.draw_chat_box()
             input_surface = self.font.render(self.user_input, True, self.WHITE)
             input_rect = input_surface.get_rect()
             input_rect.bottomleft = (0, self.display_height)
             self.gameDisplay.blit(input_surface, input_rect)
 
-            self.back_ground_road()
-
             self.run_enemy_car(self.enemy_car_startx, self.enemy_car_starty)
             self.enemy_car_starty += self.enemy_car_speed
 
             if self.enemy_car_starty > self.display_height:
                 self.enemy_car_starty = 0 - self.enemy_car_height
-                self.enemy_car_startx = random.randrange(310, 450)
+                self.enemy_car_startx = random.randrange(200, self.display_width-250)
 
             self.disp_car(self.car2["x_coordinate"], self.car2["y_coordinate"], self.car2["id"])
             self.disp_car(self.car.x_coordinate, self.car.y_coordinate, self.car.id)
@@ -173,7 +182,7 @@ class CarRacing:
                     self.crashed = True
                     self.display_message("Game Over !!!")
 
-            if self.car.x_coordinate < 310 or self.car.x_coordinate > 460:
+            if self.car.x_coordinate < 160 or self.car.x_coordinate > self.display_width-300:
                 self.crashed = True
                 self.display_message("Game Over !!!")
 
@@ -181,9 +190,9 @@ class CarRacing:
             self.clock.tick(60)
 
     def display_message(self, msg):
-        font = pygame.font.SysFont("comicsansms", 72, True)
+        font = pygame.font.Font("fonts/Valorax-lg25V.otf",72)
         text = font.render(msg, True, (255, 255, 255))
-        self.gameDisplay.blit(text, (400 - text.get_width() // 2, 240 - text.get_height() // 2))
+        self.gameDisplay.blit(text, (300, 240 - text.get_height() // 2))
         self.display_credit()
         pygame.display.update()
         self.clock.tick(60)
@@ -192,39 +201,38 @@ class CarRacing:
         self.racing_window()
 
     def back_ground_road(self):
-        self.gameDisplay.blit(self.bgImg, (self.bg_x1, self.bg_y1))
-        self.gameDisplay.blit(self.bgImg, (self.bg_x2, self.bg_y2))
+        self.gameDisplay.blit(self.bgImg, (self.bg_x1, self.bg_y1 - 900))
+        self.gameDisplay.blit(self.bgImg, (self.bg_x2, self.bg_y1))
 
         self.bg_y1 += self.bg_speed
         self.bg_y2 += self.bg_speed
 
-        if self.bg_y1 >= self.display_height:
-            self.bg_y1 = -600
+        if self.bg_y1 >= 900:
+            self.bg_y1 = 0
 
-        if self.bg_y2 >= self.display_height:
-            self.bg_y2 = -600
+
 
     def run_enemy_car(self, thingx, thingy):
         self.gameDisplay.blit(self.enemy_car, (thingx, thingy))
 
     def highscore(self, count):
-        font = pygame.font.SysFont("arial", 20)
+        font = pygame.font.Font("fonts/Valorax-lg25V.otf",20)
         text = font.render("Current score : " + str(count), True, self.white)
-        self.gameDisplay.blit(text, (0, 0))
+        self.gameDisplay.blit(text, (18, 0))
 
     def hscore(self):
-        font = pygame.font.SysFont("arial", 20)
+        font = pygame.font.Font("fonts/Valorax-lg25V.otf",20)
         text = font.render(f"High Score : {str(self.car.high_score)}", True, self.white)
-        self.gameDisplay.blit(text, (620, 0))
-        font = pygame.font.SysFont("arial", 20)
+        self.gameDisplay.blit(text, (900, 0))
+        font = pygame.font.Font("fonts/Valorax-lg25V.otf",20)
         car2id, car2hs = self.car2["id"], self.car2["high_score"]
         text = font.render(f"P{car2id} high Score : {str(car2hs)}", True, self.white)
-        self.gameDisplay.blit(text, (620, 50))
+        self.gameDisplay.blit(text, (18, 50))
 
     def display_credit(self):
-        font = pygame.font.SysFont("lucidaconsole", 14)
+        font = pygame.font.Font("fonts/Valorax-lg25V.otf",14)
         text = font.render("Thanks for playing!", True, self.white)
-        self.gameDisplay.blit(text, (600, 520))
+        self.gameDisplay.blit(text, (510, 520))
 
     def add_message(self, message):
         # self.chat_messages.append(f'ME: {message}')
