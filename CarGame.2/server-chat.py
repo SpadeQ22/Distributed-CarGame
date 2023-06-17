@@ -1,7 +1,7 @@
 import pickle
 import socket
 import threading
-import channel
+from channelServer import channel
 
 
 class Server(socket.socket):
