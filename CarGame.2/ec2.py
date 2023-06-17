@@ -1,8 +1,9 @@
 from _thread import *
-import time,json,redis,socket,pickle,subprocess
-from cargame import abc
-redis_client = redis.Redis(host="redis-12791.c44.us-east-1-2.ec2.cloud.redislabs.com", port=12791, db=0, password='bg17VYxIffU1IyzMvsiaZ1xLY5xxbpeU')
+import json,redis,socket,pickle
+
 flag=False
+redis_client = redis.Redis(host="redis-12791.c44.us-east-1-2.ec2.cloud.redislabs.com", port=12791, db=0, password='bg17VYxIffU1IyzMvsiaZ1xLY5xxbpeU')
+
 
 ip = "0.0.0.0"
 port = 1225
@@ -24,48 +25,15 @@ class Car:
         self.width = 49
         self.connected=False
 
-    def to_dict(self,message):
-        return {'id': self.id, 'x_coordinate': self.x_coordinate, 'y_coordinate': self.y_coordinate,'high_score': self.high_score,
-                'message': message}
-    @staticmethod
-    def retrieve_car(car):
-        newcar=Car(car["id"])
-        newcar.x_coordinate=car["x_coordinate"]
-        newcar.y_coordinate = car["y_coordinate"]
-        newcar.high_score = car["high_score"]
-        return newcar
+    def to_dict(self):
+        return {'id': self.id, 'x_coordinate': self.x_coordinate, 'y_coordinate': self.y_coordinate,'high_score': self.high_score}
+
 
 class dNetwork:
     def __init__(self,ip,port):
         self.ip=ip
         self.port=port
         self.connection=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-
-    def check_server(self):
-        port=80
-        cmd = f"netstat -aon | findstr :{port}"
-        output = subprocess.getoutput(cmd)
-        return f"LISTENING" in output
-
-    def connect(self):
-        try:
-            self.connection.connect((self.ip,self.port))
-            print("Successfully connected")
-            self.send(self.connection, -1)
-            return self.connection
-        except:
-            print("Server unreachable")
-
-
-    def reconnect(self,id):
-        try:
-            self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.connection.connect((self.ip,self.port))
-            self.send(self.connection,id)
-            print("Successfully connected")
-            return self.connection
-        except:
-            print("Server unreachable")
 
     def host(self):
         try:
@@ -112,54 +80,90 @@ def get_game_state(session_id):
         # print(f"No game state found for session {session_id}")
         return None
 
-def checkpoint(pn):
-    global last_call_time
-    current_time = time.time()
-    if current_time - last_call_time >= 30:
-        last_call_time = current_time
-        save_game_state(1, pn)
+def delete_game_state(session_id):
+    key = f"game:{session_id}"
+    value = redis_client.get(key)
+    if value:
+        redis_client.delete(key)
+        return True
+    else:
+        # print(f"No game state found for session {session_id}")
+        return False
 
 
-last_call_time = time.time()
+def getID(arr):
+    i = 0
+    while True:
+        if i not in arr:
+            return i
+        i += 1
+        if i > 4:
+            return -1
+
+players_inSession=get_game_state(0)
+players_inSession = {int(key): value for key, value in players_inSession.items()}
+
+x=input("Restart? Y/N :  ")
+if x=="Y":
+    save_game_state(0,{})
+    for session in players_inSession:
+        delete_game_state(session)
+    players_inSession=get_game_state(0)
+    players_inSession = {int(key): value for key, value in players_inSession.items()}
+
+
 players_connected = 0
 game_network = dNetwork(ip, port)
 connection = game_network.host()
 
-num_of_players = 5
+num_of_players = 12
 connection.listen(num_of_players)
+sessionsState={}
 
-p = []
-messages = []
 
-def client_quit(id):
-    global players_connected
-    client, _ = connection.accept()
-    reconn_id = int(game_network.recv(client))
-    if reconn_id == -1:
-        reconn_id = id
-    car=Car.retrieve_car(p[id])
-    game_network.send(client, car)
-    start_new_thread(client_handler, (reconn_id, client))
-    players_connected += 1
+def remove_player(id,session):
+    players_inSession = get_game_state(0)
+    players_inSession={int(key): value for key, value in players_inSession.items()}
+    players_inSession[session].remove(id)
+    for d in sessionsState[session]:
+            if d["id"] == id:
+                sessionsState[session].remove(d)
+                break
 
-def client_handler(id, client):
-    global game_network, p,players_connected
-    p = get_game_state(1)
+    if len(players_inSession[session])==0:
+        del players_inSession[session]
+        del sessionsState[session]
+        delete_game_state(session)
+    else:
+        save_game_state(session, sessionsState[session])
 
+    save_game_state(0, players_inSession)
+
+
+
+def client_handler(id, client,session):
+    global game_network,players_connected
+    sessionsState[session] = get_game_state(session)
     while not flag:
+
         try:
-            # checkpoint(p)
-            list = [x for x in p if x["id"] != id]
-            p[id] = game_network.recv(client)[0]
-            game_network.send(client, [list, messages])
-            if len(p[id]["message"]) > 1:
-                messages.append(p[id]["message"])
-        except:
+            y=game_network.recv(client)
+            if y=="EXIT" or y=="exit":
+                remove_player(id,session)
+                exit()
+            st=sessionsState[session]
+            list = [x for x in st if x["id"] != id]
+
+            for i in range(len(st)):
+                if st[i]["id"] == id:
+                    sessionsState[session][i] = y
+                    break
+            game_network.send(client, list)
+        except Exception as e:
             pass
 
 def wait_for_client():
-    global flag
-    global players_connected
+    global players_connected,flag
     while not flag:
 
         try:
@@ -168,16 +172,28 @@ def wait_for_client():
             flag = True
             quit()
         if players_connected != num_of_players:
-            id = int(game_network.recv(client)[0])
-            session=int(game_network.recv(client)[1])
+            connectionInfo=game_network.recv(client)
+            id = int(connectionInfo[0])
+            session=int(connectionInfo[1])
+            players_inSession=get_game_state(0)
+            players_inSession = {int(key): value for key, value in players_inSession.items()}
+            if session not in players_inSession:
+                # print("New session\n\n")
+                players_inSession[session] =[]
+                save_game_state(session,[])
             if id==-1:
-                id=players_connected
-            car = Car(players_connected)
-            p=get_game_state(session)
-            p.append(car.to_dict(""))
-            save_game_state(session,p)
-            game_network.send(client, car)
-            start_new_thread(client_handler, (id, client))
+                id=getID(players_inSession[session])
+                if id==-1:
+                    print("Session full")
+                    continue
+                players_inSession[session].append(id)
+                car = Car(id)
+                p=get_game_state(session)
+                p.append(car.to_dict())
+                save_game_state(session,p)
+                game_network.send(client, car)
+                save_game_state(0, players_inSession)
+            start_new_thread(client_handler, (id, client,session))
             players_connected += 1
         else:
             client.close()
