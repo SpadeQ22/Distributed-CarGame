@@ -4,7 +4,7 @@ from redis.cluster import RedisCluster
 import uuid
 
 class Channel:
-    def __init__(self, nBits=5, flush=False):
+    def __init__(self, flush=False):
         # self.address_mapping = {
         #     ("172.31.28.112", 6379): ("54.211.23.63", 6379),
         #     ("172.31.28.7", 6379): ("54.90.175.60", 6379),
@@ -15,11 +15,8 @@ class Channel:
         #     ("172.31.31.143", 6379): ("75.101.200.157", 6379)
         # }
         self.channel = RedisCluster(host='172.31.28.112', port=6379, read_from_replicas=True)
-        print("Connected to Cluster -- Success")
-        print(self.channel.get_nodes())
+        # print("Connected to Cluster -- Success")
         self.osmembers = {}
-        self.nBits = nBits
-        self.MAXPROC = pow(2, nBits)
         if flush:
             self.channel.flushall()
 
@@ -70,12 +67,9 @@ class Channel:
     def sendTo(self, destinationSet, message):
         caller = self.osmembers[os.getpid()]
         assert self.channel.sismember('members', str(caller)), ''
-        print(destinationSet)
-        print(self.channel.smembers('members'))
         for i in destinationSet:
             assert self.channel.sismember('members', str(i))
             self.channel.rpush(json.dumps([str(caller), str(i)]), json.dumps(message))
-        print("message sent")
 
     def sendToAll(self, message):
         caller = self.osmembers[os.getpid()]
