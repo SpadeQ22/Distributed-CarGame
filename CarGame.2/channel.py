@@ -48,10 +48,12 @@ class Channel:
         return
 
     def force_leave(self, subgroup, uuid):
+        caller = self.osmembers[os.getpid()]
         pid = uuid
         assert self.channel.sismember('members', str(pid)), ''
         self.channel.srem('members', str(pid).encode())
         self.channel.srem(subgroup, str(pid).encode())
+        self.channel.delete(json.dumps([str(caller), str(pid)]))
         return
 
     def exists(self, pid):

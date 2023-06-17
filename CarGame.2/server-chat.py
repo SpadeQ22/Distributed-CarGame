@@ -1,8 +1,9 @@
 import pickle
 import socket
 import threading
-from channelServer import channel
+import channelServer as channel
 import sys
+
 
 class Server(socket.socket):
     def __init__(self, host, port):
@@ -10,7 +11,7 @@ class Server(socket.socket):
         self.host = host
         self.port = port
         self.bind((self.host, self.port))
-        # print(f"server started at  {self.host, self.port}")
+        print(f"server started at  {self.host, self.port}")
         self.chan = channel.Channel()
         self.chan.join('server')
         self.workers = []
@@ -50,13 +51,13 @@ class Server(socket.socket):
                     self.chan.sendTo(destinationSet=clients, message=message_with_meta['message'])
         except socket.timeout:
             conn.close()
-            # print("time")
+            print("time")
         except EOFError:
             conn.close()
-            # print("EOF")
+            print("EOF")
         except ConnectionError:
             conn.close()
-            # print("ConErr")
+            print("ConErr")
         finally:
             self.chan.force_leave(groupId, uuid)
             self.workers.remove(threading.current_thread())
