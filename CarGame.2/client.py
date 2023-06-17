@@ -50,7 +50,7 @@ class Client(socket.socket):
 
 
 if __name__ == '__main__':
-    cli = Client("localhost", 1234)
+    cli = Client("18.207.221.238", 1234)
     thread = threading.Thread(target=cli.getLatestMessages, args=())
     thread.start()
     try:

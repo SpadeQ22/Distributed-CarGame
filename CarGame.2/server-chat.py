@@ -15,7 +15,18 @@ class Server(socket.socket):
         self.chan = channel.Channel()
         self.chan.join('server')
         self.workers = []
+        thread = threading.Thread(target=self.amazonPing, args=())
+        thread.start()
+        self.workers.append(thread)
 
+    def amazonPing(self):
+        aws_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        aws_socket.bind(("0.0.0.0", 1235))
+        while True:
+            self.listen()
+            conn, address = self.accept()
+            conn.close()
+    
     def run(self):
         try:
             while True:
