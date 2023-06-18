@@ -3,21 +3,21 @@
  This is a multiplayer car racing game built using Python and Pygame library. It connects players over the internet to compete with each other.
 
 ## Prerequisites
-Python 3.x
-Pygame library
-requests library
+* Python 3.x
+* Pygame library
+* requests library
 
 ## Installation
-Clone or download the repository.
-Install pipenv: pip install pipenv
-Navigate to the project directory in terminal/cmd prompt and run: pipenv install
-Start the virtual environment: pipenv shell
-Run the game: python main.py
+1. Clone or download the repository.
+2. Install pipenv: pip install pipenv
+3. Navigate to the project directory in terminal/cmd prompt and run: pipenv install
+4. Start the virtual environment: pipenv shell
+5. Run the game: python main.py
 
 ## How to play
-Use left and right arrow keys to control the player's car.
-Avoid colliding with incoming traffic and drive as far as possible.
-Chat with other players and exchange messages while playing the game.
+* Use left and right arrow keys to control the player's car.
+* Avoid colliding with incoming traffic and drive as far as possible.
+* Chat with other players and exchange messages while playing the game.
 
 ## Features
 Multiplayer game connecting players from different locations.
