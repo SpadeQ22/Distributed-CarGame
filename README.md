@@ -1,6 +1,8 @@
 # Distributed-CarGame
 This GitHub repository contains the source code for a car racing game developed for a distributed computing college course. The objective of the project is to demonstrate how distributed computing can be used to enhance the performance of a game by dividing the workload among multiple machines.
 
+## Youtube video link
+https://youtu.be/g3p23vrI7fo
 
 ## Prerequisites (versions are in requirements file)
 * Python 3.10 was used
@@ -10,10 +12,9 @@ This GitHub repository contains the source code for a car racing game developed 
 
 ## Installation
 1. Clone or download the repository.
-2. Install pipenv: pip install pipenv
-3. Navigate to the project directory in terminal/cmd prompt and run: pipenv install
-4. Start the virtual environment: pipenv shell
-5. Run the game: python main.py
+2. install the stated above libraries
+3. Run the game: python cargame.py
+4. Enjoy :)
 
 ## How to play
 * Enter the session number you want to join.
