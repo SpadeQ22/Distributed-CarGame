@@ -15,12 +15,14 @@
 5. Run the game: python main.py
 
 ## How to play
+* Enter the session number you want to join.
 * Use left and right arrow keys to control the player's car.
 * Avoid colliding with incoming traffic and drive as far as possible.
 * Chat with other players and exchange messages while playing the game.
 
 ## Features
 * Multiplayer game connecting players from different locations.
+* Allows private games to play and chat only with your friends. 
 * Chat feature allows players to communicate with each other during the game.
 * High score tracking system records the highest score achieved by each player.
 * Internet connection check, enabling automatic reconnection to backup server if the main server is down.
@@ -34,6 +36,5 @@
 * requests library is used for checking internet connectivity.
 
 ## Acknowledgments
-* The game was developed by Little B using OpenAI's product GPT-3.5.
+* The game was developed by ASU students using Python coding language.
 * Special thanks to Pygame community for their documentation and tutorials on building games with Pygame.
-* Credit for the music and sound effects goes to the respective artists and creators.
