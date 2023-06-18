@@ -163,15 +163,15 @@ class CarRacing:
                 if not self.check_internet():
                     print("Please connect to the internet")
                 else:
-                    try:
+                    self.network =self.mains
+                    self.connection = self.network.reconnect(self.car.id, self.session)
+                    if self.connection==-1:
                         try:
-                            self.network =self.mains
-                            self.connection = self.network.reconnect(self.car.id, self.session)
-                        except:
                             self.network= dNetwork(backupserver[0],backupserver[1])
                             self.connection = self.network.reconnect(self.car.id, self.session)
-                    except:
-                        print("Unable to reconnect")
+                        except:
+                            print("Unable to reconnect")
+
             else:
                 # If no exceptions were raised, we can proceed with the rest of the program
                 self.cars = self.enemy
