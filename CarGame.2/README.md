@@ -3,7 +3,7 @@
  This is a multiplayer car racing game built using Python and Pygame library. It connects players over the internet to compete with each other.
 
 ## Prerequisites
-* Python 3.x
+* Python 3.10 was used
 * Pygame library
 * requests library
 
